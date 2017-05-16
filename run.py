@@ -30,7 +30,8 @@ def buildIQ(eFile, duration, csv_file):
 	print eFile
 	if csv_file is None:
 		print '\nBuilding static location\n'
-		subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
+		# subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
+		subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
 	else:
 		print '\nBuilding dynamic location according ' + csv_file + '\n'
 		subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000', shell=True)
@@ -42,7 +43,7 @@ def start_broadcast(binFile):
 	print 'HACKRF_DIR = ' + HACKRF_DIR
 	print 'hackrf_transfer from ' + binFile + '\n\r'
 	#subprocess.call([HACKRF_DIR + 'hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
-	subprocess.call(HACKRF_DIR + 'hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 -R',shell=True)
+	subprocess.call(HACKRF_DIR + 'hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1  -R',shell=True)
 def help():
 	s = 'Environment settings\n'
 	s += '\tEphemeris directory stored by default at ./Files. Can by set by EPHEREMIS_DIR\n'
@@ -78,11 +79,13 @@ def main():
 	parser.add_argument('-d', action="store", dest='duration', type=str, help='Running suration in seconds', default='300')
 	parser.add_argument('-u', action="store", dest='csv_file', type=str, help='Set route csv file', default=None)
 	results = parser.parse_args()
-
+	'''
 	ephemerisFile = get_ephemeris(FILES_DIR)
 	print 'ephemerisFile = ' + ephemerisFile
 	bin_file = buildIQ(ephemerisFile, results.duration, results.csv_file)
 	start_broadcast(bin_file)
+	'''
+	start_broadcast('gpssim.bin')
 
 if __name__ == '__main__':
 	main()
