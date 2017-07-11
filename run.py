@@ -7,7 +7,14 @@ import argparse
 # import zlib
 import subprocess
 
+# create gsbin file with csv ot coordinates and hight
+# -o <filenme> for filename
+# -l for coordiname (in decemal system) <lat,long,hight [m]>
+# -u csv file for route
 
+# transmit GPS file by name
+# using -f <filename>
+# -R repeat
 
 def get_ephemeris(ephemeris_directory):
 	global GZIP_DIR
@@ -16,7 +23,8 @@ def get_ephemeris(ephemeris_directory):
 	
 	if not os.path.isfile(eFile):
 		if not os.path.isfile(eFile + '.Z'):
-			print 'get the ephemeris file\n\r'
+			print 'get the ephemeris file' + str(yday) + '\n\r'
+			
 			dFile = wget.download('http://ftp.pecny.cz/ftp/LDC/orbits/brdc/2017/brdc' + str(yday) + '0.17n.Z', './Files')
 			print '\n\r' + dFile+ ' Downloaded\n\r'
 		else:
@@ -30,8 +38,8 @@ def buildIQ(eFile, duration, csv_file):
 	print eFile
 	if csv_file is None:
 		print '\nBuilding static location\n'
-		# subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
-		subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
+		subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l 33.416111,35.857500,2800 -b 8 -d '+ duration + ' -s 4000000', shell=True)
+		subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 32.1464833,34.933,30 -b 8 -d '+ duration + ' -s 4000000', shell=True)
 	else:
 		print '\nBuilding dynamic location according ' + csv_file + '\n'
 		subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000', shell=True)
@@ -66,7 +74,7 @@ def update_dirs():
 		HACKRF_DIR = '"C:/Program Files/GNURadio-3.7/bin/"'
 
 	if GZIP_DIR is None:
-		GZIP_DIR = 'c:\\Program Files (x86)\\7-Zip\\'
+		GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip\\"'
 	
 def main():
 	global FILES_DIR
