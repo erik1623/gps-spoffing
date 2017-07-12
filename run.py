@@ -38,13 +38,14 @@ def buildIQ(eFile, duration, csv_file, location = '33.416111,35.857500,2800', bi
         subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000', shell=True)
     return binfilename
 
-	
 def start_broadcast(binFile, additional_param):
-	global HACKRF_DIR 
-	print 'HACKRF_DIR = ' + HACKRF_DIR
-	print 'hackrf_transfer from ' + binFile + '\n\r'
-	#subprocess.call([HACKRF_DIR + 'hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
-	subprocess.call(HACKRF_DIR + 'hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param,shell=True)
+    global HACKRF_DIR 
+    print 'HACKRF_DIR = ' + HACKRF_DIR
+    print 'hackrf_transfer from ' + binFile + '\n\r'
+    #subprocess.call([HACKRF_DIR + 'hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
+    command = HACKRF_DIR + 'hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
+    subprocess.call(command,shell=True)
+
 def help():
 	s = 'Environment settings\n'
 	s += '\tEphemeris directory stored by default at ./Files. Can by set by EPHEREMIS_DIR\n'
@@ -64,7 +65,7 @@ def update_dirs():
 		FILES_DIR = '.\Files'
 
 	if HACKRF_DIR is None:
-		HACKRF_DIR = '"C:/Program Files/GNURadio-3.7/bin/"'
+		HACKRF_DIR = '"C:\\Program Files\\GNURadio-3.7\\bin\\"'
 
 	if GZIP_DIR is None:
 		GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip\\"'
