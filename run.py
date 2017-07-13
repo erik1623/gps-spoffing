@@ -23,7 +23,7 @@ def get_ephemeris(ephemeris_directory):
         else:
             dFile = eFile + '.Z'
         print 'Uncompress...\n\r'
-        subprocess.call(GZIP_DIR + '7z e '+ dFile + ' -o' + ephemeris_directory, shell=True)
+        subprocess.call(GZIP_DIR + '\\7z e '+ dFile + ' -o' + ephemeris_directory, shell=True)
         print 'Finish to Uncompress\n\r'
     return eFile
 
@@ -42,8 +42,8 @@ def start_broadcast(binFile, additional_param):
     global HACKRF_DIR 
     print 'HACKRF_DIR = ' + HACKRF_DIR
     print 'hackrf_transfer from ' + binFile + '\n\r'
-    #subprocess.call([HACKRF_DIR + 'hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
-    command = HACKRF_DIR + 'hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
+    #subprocess.call([HACKRF_DIR + '\\hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
+    command = HACKRF_DIR + '\\hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
     subprocess.call(command,shell=True)
 
 def help():
@@ -54,22 +54,22 @@ def help():
 	return s
 	
 def update_dirs():
-	global FILES_DIR
-	global HACKRF_DIR 
-	global GZIP_DIR
-	FILES_DIR = os.environ.get('FILES_DIR')
-	HACKRF_DIR = os.environ.get('HACKRF_DIR')
-	GZIP_DIR = os.environ.get('GZIP_DIR')
-	
-	if FILES_DIR is None:
-		FILES_DIR = '.\Files'
+    global FILES_DIR
+    global HACKRF_DIR 
+    global GZIP_DIR
+    FILES_DIR = os.environ.get('FILES_DIR')
+    HACKRF_DIR = os.environ.get('HACKRF_DIR')
+    GZIP_DIR = os.environ.get('GZIP_DIR')
 
-	if HACKRF_DIR is None:
-		HACKRF_DIR = '"C:\\Program Files\\GNURadio-3.7\\bin\\"'
+    if FILES_DIR is None:
+        FILES_DIR = '.\Files'
 
-	if GZIP_DIR is None:
-		GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip\\"'
-	
+    if HACKRF_DIR is None:
+        HACKRF_DIR = '"C:\\Program Files\\GNURadio-3.7\\bin"'
+
+    if GZIP_DIR is None:
+        GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip"'
+
 def main():
     global FILES_DIR
     global HACKRF_DIR
@@ -80,12 +80,12 @@ def main():
     parser = argparse.ArgumentParser(description='Run.py - GPS spoofing tool')
     parser._optionals.title = help()
     parser.add_argument('-d', action="store", dest='duration', type=str, help='Running suration in seconds', default='300')
-    parser.add_argument('-u', action="store", dest='csv_file', type=str, help='Set route csv file', default=None)
+    parser.add_argument('-u', action="store", dest='csv_file', type=str, help='Set route csv file', default='ks.csv')
     parser.add_argument('-o', action="store", dest='sim_filename', type=str, help='save the gpsbin file at specify filename', default='gpssim.bin')
-    parser.add_argument('-l', action="store", dest='location', type=str, help='Use specific lat/long. use -l lat,long,hight')
+    parser.add_argument('-l', action="store", dest='location', type=str, help='Use specific lat/long. use -l lat,long,hight', default='32.1464833,34.933,30')
     parser.add_argument('-f', action="store", dest='input_sim_filename', type=str, help='Skip the generation of gps file and transmit the given file')
     parser.add_argument('-R', action="store_true", dest='repeat', help='Repeat transmiting in loop', default = False)
-    parser.add_argument('-N', action="store_true", dest='do_not_transmit', help='Repeat transmiting in loop', default = False)
+    parser.add_argument('-N', action="store_true", dest='do_not_transmit', help='Do not transmit', default = False)
     results = parser.parse_args()
     
     if (results.input_sim_filename is None):
