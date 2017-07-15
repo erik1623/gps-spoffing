@@ -27,7 +27,7 @@ def get_ephemeris(ephemeris_directory):
         print 'Finish to Uncompress\n\r'
     return eFile
 
-def buildIQ(eFile, duration, csv_file, location = '33.416111,35.857500,2800', binfilename='gpssin.bin'):
+def buildIQ(eFile, duration, csv_file, location='33.416111,35.857500,2800', binfilename='gpssin.bin'):
     print eFile
     if csv_file is None:
         print '\nBuilding static location\n'
@@ -43,7 +43,7 @@ def start_broadcast(binFile, additional_param):
     print 'HACKRF_DIR = ' + HACKRF_DIR
     print 'hackrf_transfer from ' + binFile + '\n\r'
     #subprocess.call([HACKRF_DIR + '\\hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
-    command = HACKRF_DIR + '\\hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
+    command = '"' + HACKRF_DIR + '"\\hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
     subprocess.call(command,shell=True)
 
 def help():
@@ -88,12 +88,12 @@ def main():
     parser.add_argument('-N', action="store_true", dest='do_not_transmit', help='Do not transmit', default = False)
     results = parser.parse_args()
     
-    if (results.input_sim_filename is None):
+    if results.input_sim_filename is None:
         ephemerisFile = get_ephemeris(FILES_DIR)
         print 'ephemerisFile = ' + ephemerisFile
         sim_file = buildIQ(ephemerisFile, results.duration, results.csv_file, results.location, results.sim_filename)
         results.input_sim_filename = results.sim_filename
-    if (results.do_not_transmit is not True):
+    if results.do_not_transmit is not True:
         R = '-R' if results.repeat is True else ''
         start_broadcast(results.input_sim_filename, R)
 
