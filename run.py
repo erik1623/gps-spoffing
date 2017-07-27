@@ -6,6 +6,7 @@ import gzip
 import argparse
 # import zlib
 import subprocess
+import py_compile
 
 
 def get_ephemeris(ephemeris_directory):
@@ -27,15 +28,15 @@ def get_ephemeris(ephemeris_directory):
         print 'Finish to Uncompress\n\r'
     return eFile
 
-def buildIQ(eFile, duration, csv_file, location='33.416111,35.857500,2800', binfilename='gpssin.bin'):
+def buildIQ(eFile, duration, csv_file, location, binfilename):
     print eFile
     if csv_file is None:
         print '\nBuilding static location\n'
-        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000', shell=True)
+        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
         #subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 32.1464833,34.933,30 -b 8 -d '+ duration + ' -s 4000000', shell=True)
     else:
         print '\nBuilding dynamic location according ' + csv_file + '\n'
-        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000', shell=True)
+        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
     return binfilename
 
 def start_broadcast(binFile, additional_param):
@@ -43,7 +44,7 @@ def start_broadcast(binFile, additional_param):
     print 'HACKRF_DIR = ' + HACKRF_DIR
     print 'hackrf_transfer from ' + binFile + '\n\r'
     #subprocess.call([HACKRF_DIR + '\\hackrf_transfer', '-t',  binFile,'-f', '1575420000', '-s', '4000000', '-a', '1', '-x', '1', '-R'],shell=True)
-    command = '"' + HACKRF_DIR + '"\\hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
+    command = HACKRF_DIR + '\\hackrf_transfer -t ' + binFile + ' -f 1575420000 -s 4000000 -a 1 -x 1 ' + additional_param
     subprocess.call(command,shell=True)
 
 def help():
@@ -80,9 +81,9 @@ def main():
     parser = argparse.ArgumentParser(description='Run.py - GPS spoofing tool')
     parser._optionals.title = help()
     parser.add_argument('-d', action="store", dest='duration', type=str, help='Running suration in seconds', default='300')
-    parser.add_argument('-u', action="store", dest='csv_file', type=str, help='Set route csv file', default='ks.csv')
+    parser.add_argument('-u', action="store", dest='csv_file', type=str, help='Set route csv file')
     parser.add_argument('-o', action="store", dest='sim_filename', type=str, help='save the gpsbin file at specify filename', default='gpssim.bin')
-    parser.add_argument('-l', action="store", dest='location', type=str, help='Use specific lat/long. use -l lat,long,hight', default='32.1464833,34.933,30')
+    parser.add_argument('-l', action="store", dest='location', type=str, help='Use specific lat/long. use -l lat,long,hight')
     parser.add_argument('-f', action="store", dest='input_sim_filename', type=str, help='Skip the generation of gps file and transmit the given file')
     parser.add_argument('-R', action="store_true", dest='repeat', help='Repeat transmiting in loop', default = False)
     parser.add_argument('-N', action="store_true", dest='do_not_transmit', help='Do not transmit', default = False)
@@ -91,11 +92,12 @@ def main():
     if results.input_sim_filename is None:
         ephemerisFile = get_ephemeris(FILES_DIR)
         print 'ephemerisFile = ' + ephemerisFile
-        sim_file = buildIQ(ephemerisFile, results.duration, results.csv_file, results.location, results.sim_filename)
-        results.input_sim_filename = results.sim_filename
-    if results.do_not_transmit is not True:
+        results.input_sim_filename = buildIQ(ephemerisFile, results.duration, results.csv_file, results.location, results.sim_filename)
+
+	if results.do_not_transmit is not True:
         R = '-R' if results.repeat is True else ''
         start_broadcast(results.input_sim_filename, R)
 
 if __name__ == '__main__':
+	py_compile.compile('run.py')
 	main()
