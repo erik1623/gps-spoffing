@@ -95,8 +95,8 @@ def main():
         results.input_sim_filename = buildIQ(ephemerisFile, results.duration, results.csv_file, results.location, results.sim_filename)
 
 	if results.do_not_transmit is not True:
-        R = '-R' if results.repeat is True else ''
-        start_broadcast(results.input_sim_filename, R)
+		R = '-R' if results.repeat is True else ''
+		start_broadcast(results.input_sim_filename, R)
 
 if __name__ == '__main__':
 	py_compile.compile('run.py')
