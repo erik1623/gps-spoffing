@@ -88,16 +88,19 @@ def main():
     parser.add_argument('-R', action="store_true", dest='repeat', help='Repeat transmiting in loop', default = False)
     parser.add_argument('-N', action="store_true", dest='do_not_transmit', help='Do not transmit', default = False)
     results = parser.parse_args()
+    #start_broadcast(results.input_sim_filename, '')
+    
+	
     
     if results.input_sim_filename is None:
         ephemerisFile = get_ephemeris(FILES_DIR)
         print 'ephemerisFile = ' + ephemerisFile
         results.input_sim_filename = buildIQ(ephemerisFile, results.duration, results.csv_file, results.location, results.sim_filename)
 
-	if results.do_not_transmit is not True:
-		R = '-R' if results.repeat is True else ''
-		start_broadcast(results.input_sim_filename, R)
-
+    if results.do_not_transmit is not True:
+        R = '-R' if results.repeat is True else ''
+        start_broadcast(results.input_sim_filename, R)
+    
 if __name__ == '__main__':
 	py_compile.compile('run.py')
 	main()
