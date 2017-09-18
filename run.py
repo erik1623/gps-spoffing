@@ -4,7 +4,7 @@ import wget
 import os.path
 import gzip
 import argparse
-# import zlib
+import zlib
 import subprocess
 import py_compile
 
@@ -19,12 +19,16 @@ def get_ephemeris(ephemeris_directory):
         if not os.path.isfile(eFile + '.Z'):
             print 'get the ephemeris file' + str(yday) + '\n\r'
             source = 'http://ftp.pecny.cz/ftp/LDC/orbits/brdc/' + str(year) + '/brdc' + str(yday) + '0.17n.Z'
+            print 'File location=' + eFile
             dFile = wget.download(source, ephemeris_directory)
             print '\n\r' + dFile+ ' Downloaded\n\r'
         else:
             dFile = eFile + '.Z'
         print 'Uncompress...\n\r'
-        subprocess.call(GZIP_DIR + '\\7z e '+ dFile + ' -o' + ephemeris_directory, shell=True)
+	if is_windows():
+            subprocess.call(GZIP_DIR + '\\7z e '+ dFile + ' -o' + ephemeris_directory, shell=True)
+        else:
+            subprocess.call('gunzip -k -d '+ dFile, shell=True)
         print 'Finish to Uncompress\n\r'
     return eFile
 
@@ -32,11 +36,11 @@ def buildIQ(eFile, duration, csv_file, location, binfilename):
     print eFile
     if csv_file is None:
         print '\nBuilding static location\n'
-        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
         #subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 32.1464833,34.933,30 -b 8 -d '+ duration + ' -s 4000000', shell=True)
     else:
         print '\nBuilding dynamic location according ' + csv_file + '\n'
-        subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
     return binfilename
 
 def start_broadcast(binFile, additional_param):
@@ -50,8 +54,12 @@ def start_broadcast(binFile, additional_param):
 def help():
 	s = 'Environment settings\n'
 	s += '\tEphemeris directory stored by default at ./Files. Can by set by EPHEREMIS_DIR\n'
-	s += '\thackrf_transfer.exe location is set by default to "C:/Program Files/GNURadio-3.7/bin/". Can by set by HACKRF_DIR\n'
-	s += '\t7z.exe location is set by default to "c:\\Program Files (x86)\\7-Zip\\7z". Can by set by GZIP_DIR\n'
+	if is_windows():
+	    s += '\thackrf_transfer.exe location is set by default to "C:/Program Files/GNURadio-3.7/bin/". Can by set by HACKRF_DIR\n'
+	    s += '\t7z.exe location is set by default to "c:\\Program Files (x86)\\7-Zip\\7z". Can by set by GZIP_DIR\n'
+        else:
+	    s += '\thackrf_transfer.exe location is set at installation to by default to "/usr/bin". Can by set by HACKRF_DIR\n'
+
 	return s
 	
 def update_dirs():
@@ -62,14 +70,23 @@ def update_dirs():
     HACKRF_DIR = os.environ.get('HACKRF_DIR')
     GZIP_DIR = os.environ.get('GZIP_DIR')
 
-    if FILES_DIR is None:
-        FILES_DIR = '.\Files'
+    if is_windows():
+        if FILES_DIR is None:
+            FILES_DIR = '.\Files'
 
-    if HACKRF_DIR is None:
-        HACKRF_DIR = '"C:\\Program Files\\GNURadio-3.7\\bin"'
+        if HACKRF_DIR is None:
+            HACKRF_DIR = '"C:\\Program Files\\GNURadio-3.7\\bin"'
 
-    if GZIP_DIR is None:
-        GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip"'
+        if GZIP_DIR is None:
+            GZIP_DIR = '"c:\\Program Files (x86)\\7-Zip"'
+    else:
+        if FILES_DIR is None:
+            FILES_DIR = './Files'
+
+def is_windows():
+	if os.name == 'nt':
+		return True
+	return False
 
 def main():
     global FILES_DIR
