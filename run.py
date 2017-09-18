@@ -36,11 +36,18 @@ def buildIQ(eFile, duration, csv_file, location, binfilename):
     print eFile
     if csv_file is None:
         print '\nBuilding static location\n'
-        subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        if is_windows():
+            print 'gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename
+            subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        else:
+            subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -l ' + location + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)			
         #subprocess.call('gps-sdr-sim -v -e ' + eFile + ' -l 32.1464833,34.933,30 -b 8 -d '+ duration + ' -s 4000000', shell=True)
     else:
         print '\nBuilding dynamic location according ' + csv_file + '\n'
-        subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        if is_windows():
+            subprocess.call('gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
+        else:
+            subprocess.call('./gps-sdr-sim -v -T now -e ' + eFile + ' -u ' + csv_file + ' -b 8 -d '+ duration + ' -s 4000000' + ' -o ' + binfilename, shell=True)
     return binfilename
 
 def start_broadcast(binFile, additional_param):
